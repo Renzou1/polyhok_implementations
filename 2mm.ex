@@ -10,10 +10,15 @@ def init_array(ni, nj, nk, nl, A, B, C, D) do
     alpha = 32412
     beta = 2123
 
-    A = 
-        Enum.map(matrix, fn row ->
-            Enum.map(row, fn val -> val * 2 end)
+    A =
+    |> Enum.with_index()
+    |> Enum.map(fn {row, i} ->
+        row
+        |> Enum.with_index()
+        |> Enum.map(fn {val, j} ->
+        val * (i + j) #change
         end)
+    end)    
 
     {alpha, beta}
 end
