@@ -16,7 +16,7 @@ def init_array(ni, nj, nk, nl, A, B, C, D) do
         row
         |> Enum.with_index()
         |> Enum.map(fn {val, j} ->
-        val * (i + j) #change
+        val * (i + j) #change this
         end)
     end)    
 
