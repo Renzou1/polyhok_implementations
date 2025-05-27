@@ -53,6 +53,14 @@ end
 defk mm2_kernel1(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
 	j = blockIdx.x * blockDim.x + threadIdx.x
 	i = blockIdx.y * blockDim.y + threadIdx.y
+
+    if (i < @ni && j < @nj) do
+        tmp[i * @nj + j] = 0
+        for 0..@nk - 1 do
+            #tmp[i * @nj + j] = alpha * a[i * @nk + k] * b[k * @nj + j] + tmp[i * @nj + j] 
+        end
+    end
+
 end
 
 defk mm2_kernel2(ni, nj, nk, nl, alpha, beta, tmp, c, d) do
