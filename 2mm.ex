@@ -10,12 +10,13 @@ def init_array(ni, nj, nk, nl, a, b, c, d) do
     alpha = 32412
     beta = 2123
 
-    a =
-        for i <- 0..ni-1 do
-            for j <- 0..nk-1 do
-                (i * j) / @ni
-            end
-        end
+    a = Nx.tensor(0..1)
+    #a =
+    #    for i <- 0..ni-1 do
+    #        for j <- 0..nk-1 do
+    #            (i * j) / @ni
+    #        end
+    #    end
 
     b = 
         for i <- 0..nk-1 do
@@ -55,12 +56,20 @@ defk mm2_kernel1(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
 	i = blockIdx.y * blockDim.y + threadIdx.y
 
     if (i < @ni && j < @nj) do
-        tmp[i * @nj + j] = 0
-        for 0..@nk - 1 do
-            #tmp[i * @nj + j] = alpha * a[i * @nk + k] * b[k * @nj + j] + tmp[i * @nj + j] 
-        end
+        tmp[i * @nj + j] = map_kernel1_helper(alpha, a, b, j, i)
     end
 
+
+
+end
+
+def map_kernel1_helper(alpha, a, b, j, i) do 
+    acc = 0
+    for i in 0..@nk-1 do
+        acc = acc + alpha * a[i * @nk + k] * b[k * @nj + j]
+    end
+
+    acc
 end
 
 defk mm2_kernel2(ni, nj, nk, nl, alpha, beta, tmp, c, d) do
