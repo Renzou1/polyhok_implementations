@@ -6,32 +6,32 @@ PolyHok.defmodule MM2 do
     @nl 1024
     @nk 1024
 
-def init_array(ni, nj, nk, nl, A, B, C, D) do
+def init_array(ni, nj, nk, nl, a, b, c, d) do
     alpha = 32412
     beta = 2123
 
-    A =
+    a =
         for i <- 0..ni-1 do
             for j <- 0..nk-1 do
                 (i * j) / @ni
             end
         end
 
-    B = 
+    b = 
         for i <- 0..nk-1 do
             for j <- 0..nj-1 do
                 (i * (j + 1))  / @nj
             end
         end
 
-    C = 
+    c = 
         for i <- 0..nl-1 do
             for j <- 0..nj-1 do
                 (i * (j + 3)) / @nl
             end
         end
 
-    D = 
+    d = 
         for i <- 0..ni-1 do
             for j <- 0..nl-1 do
                 (i * (j + 2)) / @nk
@@ -42,7 +42,7 @@ def init_array(ni, nj, nk, nl, A, B, C, D) do
     {alpha, beta}
 end
 
-def compare_results() do
+def compare_results(ni, nl, d, d_outputFromGpu) do
 
 end
 
@@ -50,19 +50,20 @@ def gpu_argv_init() do
 
 end
 
-defk mm2_kernel1() do
+defk mm2_kernel1(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
+	j = blockIdx.x * blockDim.x + threadIdx.x
+	i = blockIdx.y * blockDim.y + threadIdx.y
+end
+
+defk mm2_kernel2(ni, nj, nk, nl, alpha, beta, tmp, c, d) do
 
 end
 
-defk mm2_kernel2() do
+def print_array(ni, nl, d) do
 
 end
 
-def print_array() do
-
-end
-
-def mm2_polyhok() do
+def mm2_polyhok(ni, nj, nk, nl, alpha, beta, temp, a, b, c, d, d_outputFromGpu) do
 
 end
 
