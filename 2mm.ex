@@ -11,14 +11,33 @@ def init_array(ni, nj, nk, nl, A, B, C, D) do
     beta = 2123
 
     A =
-    |> Enum.with_index()
-    |> Enum.map(fn {row, i} ->
-        row
-        |> Enum.with_index()
-        |> Enum.map(fn {val, j} ->
-        val * (i + j) #change this
-        end)
-    end)    
+        for i <- 0..ni-1 do
+            for j <- 0..nk-1 do
+                (i * j) / @ni
+            end
+        end
+
+    B = 
+        for i <- 0..nk-1 do
+            for j <- 0..nj-1 do
+                (i * (j + 1))  / @nj
+            end
+        end
+
+    C = 
+        for i <- 0..nl-1 do
+            for j <- 0..nj-1 do
+                (i * (j + 3)) / @nl
+            end
+        end
+
+    D = 
+        for i <- 0..ni-1 do
+            for j <- 0..nl-1 do
+                (i * (j + 2)) / @nk
+            end
+        end
+
 
     {alpha, beta}
 end
