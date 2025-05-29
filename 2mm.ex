@@ -10,13 +10,13 @@ def init_array(ni, nj, nk, nl, a, b, c, d) do
     alpha = 32412
     beta = 2123
 
-    a = Nx.tensor(0..1)
-    #a =
-    #    for i <- 0..ni-1 do
-    #        for j <- 0..nk-1 do
-    #            (i * j) / @ni
-    #        end
-    #    end
+    #a = Nx.tensor()
+    a =
+        for i <- 0..ni-1 do
+            for j <- 0..nk-1 do
+                (i * j) / @ni
+            end
+        end
 
     b = 
         for i <- 0..nk-1 do
@@ -59,13 +59,11 @@ defk mm2_kernel1(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
         tmp[i * @nj + j] = map_kernel1_helper(alpha, a, b, j, i)
     end
 
-
-
 end
 
 def map_kernel1_helper(alpha, a, b, j, i) do 
     acc = 0
-    for i in 0..@nk-1 do
+    for k <- 0..@nk-1 do
         acc = acc + alpha * a[i * @nk + k] * b[k * @nj + j]
     end
 
@@ -73,7 +71,20 @@ def map_kernel1_helper(alpha, a, b, j, i) do
 end
 
 defk mm2_kernel2(ni, nj, nk, nl, alpha, beta, tmp, c, d) do
+    j = blockIdx.x * blockDim.x + threadIdx.x
+	i = blockIdx.y * blockDim.y + threadIdx.y
 
+	if ((i < @ni) && (j < @nl)) do 
+        D[i * @nl + j] = mm2_kernel2_helper(D[i * @nl + j], beta, tmp, c,  j, i)
+	end
+end
+
+def mm2_kernel2_helper(acc, beta, tmp, c,  j, i) do
+    acc = acc * beta
+
+    for k <- 0..@nj-1 do
+        acc =  acc + tmp[i * @nj + k] * c[k * @nl + j]
+    end
 end
 
 def print_array(ni, nl, d) do
