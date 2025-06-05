@@ -57,9 +57,9 @@ defk mm2_kernel1(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
 
 end
 
-defd map_kernel1_helper(nj, nk, alpha, a, b, j, i) do 
+defd mm2_kernel1_helper(nj, nk, alpha, a, b, j, i) do 
     acc = 0
-    for k <- 0..nk-1 do
+    for k in range(0, nk, 1) do
         acc = acc + alpha * a[i * nk + k] * b[k * nj + j]
     end
 
@@ -78,7 +78,7 @@ end
 defd mm2_kernel2_helper(nj, nl, acc, beta, tmp, c,  j, i) do
     acc = acc * beta
 
-    for k <- 0..nj-1 do
+    for k in range(0, nj, 1) do
         acc =  acc + tmp[i * nj + k] * c[k * nl + j]
     end
 
