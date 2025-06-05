@@ -38,7 +38,7 @@ def init_array(ni, nj, nk, nl, type) do
     b = Nx.tensor(b, type: type)
     c = Nx.tensor(c, type: type)
     d = Nx.tensor(d, type: type)
-    tmp = Nx.broadcast(0.0, {1024, 1024})
+    tmp = Nx.broadcast(Nx.tensor(0, type: type), {ni, nj})
 
     {alpha, beta, a, b, c, d, tmp}
 end
