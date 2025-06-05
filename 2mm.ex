@@ -96,11 +96,15 @@ _z = 2
 grid1 = {Float.ceil(nj / elem(block, x)), Float.ceil(ni / elem(block, y)), 1}
 grid2 = {Float.ceil(nl / elem(block, x)), Float.ceil(ni / elem(block,y)), 1}
 
+prev = System.monotonic_time()
+
 PolyHok.spawn(&MM2.mm2_kernel1/9, grid1, block, [ni, nj, nk, nl, alpha, beta, tmp_gpu, a_gpu, b_gpu])
 PolyHok.spawn(&MM2.mm2_kernel2/9, grid2, block, [ni, nj, nk, nl, alpha, beta, tmp_gpu, c_gpu, d_gpu])
 
-d_outputFromGpu = PolyHok.get_gnx(d_gpu)
-d_outputFromGpu
+next = System.monotonic_time()
+
+IO.puts "PolyHok\t#{Polyhok.get_gnx(d_gpu)}\t#{System.convert_time_unit(next-prev,:native,:millisecond)} "
+
 end
 end
 
@@ -112,4 +116,4 @@ type = {:f, 32}
 
 {alpha, beta, a, b, c, d, tmp} = MM2.init_array(ni, nj, nk, nl, type)
 
-d_outputFromGpu = MM2.mm2_polyhok(ni, nj, nk, nl, alpha, beta, tmp, a, b, c, d)
+MM2.mm2_polyhok(ni, nj, nk, nl, alpha, beta, tmp, a, b, c, d)
