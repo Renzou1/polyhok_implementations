@@ -6,7 +6,6 @@ def init_array(ni, nj, nk, nl) do
     alpha = 32412
     beta = 2123
 
-    #a = Nx.tensor()
     a =
         for i <- 0..ni-1 do
             for j <- 0..nk-1 do
@@ -35,8 +34,13 @@ def init_array(ni, nj, nk, nl) do
             end
         end
 
+    a = Nx.tensor(a, type: {:f, 32})
+    b = Nx.tensor(b, type: {:f, 32})
+    c = Nx.tensor(c, type: {:f, 32})
+    d = Nx.tensor(d, type: {:f, 32})
+    tmp = Nx.broadcast(0.0, {1024, 1024})
 
-    {alpha, beta, a, b, c, d}
+    {alpha, beta, a, b, c, d, tmp}
 end
 
 def compare_results(ni, nl, d, d_outputFromGpu) do
@@ -92,10 +96,10 @@ end
 def mm2_polyhok(ni, nj, nk, nl, alpha, beta, tmp, a, b, c, d) do    
 
 tmp_gpu = PolyHok.new_gnx(tmp, type: f32) #hardcoded types for now
-a_gpu = PolyHok.new_gnx(a, type: f32)
-b_gpu = PolyHok.new_gnx(b, type: f32)
-c_gpu = PolyHok.new_gnx(c, type: f32)
-d_gpu = PolyHok.new_gnx(d, type: f32)
+a_gpu = PolyHok.new_gnx(a, type: {:f, 32})
+b_gpu = PolyHok.new_gnx(b, type: {:f, 32})
+c_gpu = PolyHok.new_gnx(c, type: {:f, 32})
+d_gpu = PolyHok.new_gnx(d, type: {:f, 32})
 
 block = {32, 8, 1}
 x = 0
@@ -117,6 +121,6 @@ nj = 1024
 nk = 1024
 nl = 1024
 
-{alpha, beta, a, b, c, d} = init_array(ni, nj, nk, nl)
+{alpha, beta, a, b, c, d, tmp} = init_array(ni, nj, nk, nl)
 
 mm2_polyhok(ni, nj, nk, nl, alpha, beta, tmp, a, b, c, d, d_outputFromGpu)
