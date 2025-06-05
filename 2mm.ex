@@ -2,7 +2,7 @@ require PolyHok
 
 PolyHok.defmodule MM2 do
 
-def init_array(ni, nj, nk, nl) do
+def init_array(ni, nj, nk, nl, type) do
     alpha = 32412
     beta = 2123
 
@@ -34,10 +34,10 @@ def init_array(ni, nj, nk, nl) do
             end
         end
 
-    a = Nx.tensor(a, type: {:f, 32})
-    b = Nx.tensor(b, type: {:f, 32})
-    c = Nx.tensor(c, type: {:f, 32})
-    d = Nx.tensor(d, type: {:f, 32})
+    a = Nx.tensor(a, type: type)
+    b = Nx.tensor(b, type: type)
+    c = Nx.tensor(c, type: type)
+    d = Nx.tensor(d, type: type)
     tmp = Nx.broadcast(0.0, {1024, 1024})
 
     {alpha, beta, a, b, c, d, tmp}
@@ -95,11 +95,12 @@ end
 
 def mm2_polyhok(ni, nj, nk, nl, alpha, beta, tmp, a, b, c, d) do    
 
-tmp_gpu = PolyHok.new_gnx(tmp, type: f32) #hardcoded types for now
-a_gpu = PolyHok.new_gnx(a, type: {:f, 32})
-b_gpu = PolyHok.new_gnx(b, type: {:f, 32})
-c_gpu = PolyHok.new_gnx(c, type: {:f, 32})
-d_gpu = PolyHok.new_gnx(d, type: {:f, 32})
+type = PolyHok.get_array_type(a)
+tmp_gpu = PolyHok.new_gnx(tmp, type: type)
+a_gpu = PolyHok.new_gnx(a, type: type)
+b_gpu = PolyHok.new_gnx(b, type: type)
+c_gpu = PolyHok.new_gnx(c, type: type)
+d_gpu = PolyHok.new_gnx(d, type: type)
 
 block = {32, 8, 1}
 x = 0
@@ -121,6 +122,6 @@ nj = 1024
 nk = 1024
 nl = 1024
 
-{alpha, beta, a, b, c, d, tmp} = init_array(ni, nj, nk, nl)
+{alpha, beta, a, b, c, d, tmp} = init_array(ni, nj, nk, nl, {:f, 32})
 
 mm2_polyhok(ni, nj, nk, nl, alpha, beta, tmp, a, b, c, d, d_outputFromGpu)
