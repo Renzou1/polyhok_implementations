@@ -48,7 +48,7 @@ defk mm2_kernel1(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
 	i = blockIdx.y * blockDim.y + threadIdx.y
 
     if (i < ni && j < nj) do
-        tmp[i * nj + j] = map_kernel1_helper(nj, nk, alpha, a, b, j, i)
+        tmp[i * nj + j] = mm2_kernel1_helper(nj, nk, alpha, a, b, j, i)
     end
 
 end
