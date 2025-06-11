@@ -43,17 +43,17 @@ def init_array(ni, nj, nk, nl, type) do
     {alpha, beta, a, b, c, d, tmp}
 end
 
-defk mm2_kernel1(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
+defk mm2_kernel(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
 	j = blockIdx.x * blockDim.x + threadIdx.x
 	i = blockIdx.y * blockDim.y + threadIdx.y
 
     if (i < ni && j < nj) do
-        tmp[i * nj + j] = mm2_kernel1_helper(nj, nk, alpha, a, b, j, i)
+        tmp[i * nj + j] = mm2_kernel_helper(nj, nk, alpha, a, b, j, i)
     end
 
 end
 
-defd mm2_kernel1_helper(nj, nk, alpha, a, b, j, i) do 
+defd mm2_kernel_helper(nj, nk, alpha, a, b, j, i) do 
     acc = 0
     for k in range(0, nk, 1) do
         acc = acc + alpha * a[i * nk + k] * b[k * nj + j]
@@ -67,7 +67,7 @@ defk mm2_kernel2(ni, nj, nk, nl, alpha, beta, tmp, c, d) do
 	i = blockIdx.y * blockDim.y + threadIdx.y
 
 	if ((i < ni) && (j < nl)) do 
-        D[i * nl + j] = mm2_kernel2_helper(nj, nl, D[i * nl + j], beta, tmp, c,  j, i)
+        d[i * nl + j] = mm2_kernel2_helper(nj, nl, d[i * nl + j], beta, tmp, c,  j, i)
 	end
 end
 
@@ -98,7 +98,7 @@ grid2 = {Float.ceil(nl / elem(block, x)), Float.ceil(ni / elem(block,y)), 1}
 
 prev = System.monotonic_time()
 
-PolyHok.spawn(&MM2.mm2_kernel1/9, grid1, block, [ni, nj, nk, nl, alpha, beta, tmp_gpu, a_gpu, b_gpu])
+PolyHok.spawn(&MM2.mm2_kernel/9, grid1, block, [ni, nj, nk, nl, alpha, beta, tmp_gpu, a_gpu, b_gpu])
 PolyHok.spawn(&MM2.mm2_kernel2/9, grid2, block, [ni, nj, nk, nl, alpha, beta, tmp_gpu, c_gpu, d_gpu])
 
 next = System.monotonic_time()
