@@ -108,6 +108,7 @@ IO.puts "PolyHok\t#{inspect(PolyHok.get_gnx(d_gpu))}\t#{System.convert_time_unit
 PolyHok.get_gnx(d_gpu)
 |> Nx.to_flat_list()
 |> Enum.map(&Float.to_string/1)
+|> Enum.join(" ")
 |> then(&File.write!("polyhok_output.txt", &1))
 
 end

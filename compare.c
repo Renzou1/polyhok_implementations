@@ -6,9 +6,6 @@ int main(int argc, char* argv[]){
         FILE* fp1 = fopen(argv[1], "r");
         FILE* fp2 = fopen(argv[2], "r");
 
-        float number;
-        fscanf(fp2, "%f", &number);
-        printf("%f\n", number);
         float cuda_number;
         float polyhok_number;
 
