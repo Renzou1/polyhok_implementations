@@ -40,6 +40,8 @@ def init_array(ni, nj, nk, nl, type) do
     d = Nx.tensor(d, type: type)
     tmp = Nx.broadcast(Nx.tensor(0, type: type), {ni, nj})
 
+    write_tensor_to_file(a, "polyhok_a.txt")
+    
     {alpha, beta, a, b, c, d, tmp}
 end
 
@@ -79,6 +81,15 @@ defd mm2_kernel2_helper(nj, nl, acc, beta, tmp, c,  j, i) do
     end
 
     return acc2
+end
+
+def write_tensor_to_file(list, file_name) do
+list
+|> Nx.to_flat_list()
+|> Enum.map(&Float.to_string/1)
+|> Enum.join(" ")
+|> then(&File.write!(file_name, &1))
+
 end
 
 def mm2_polyhok(ni, nj, nk, nl, alpha, beta, tmp, a, b, c, d) do    
