@@ -72,13 +72,13 @@ defk mm2_kernel2(ni, nj, nk, nl, alpha, beta, tmp, c, d) do
 end
 
 defd mm2_kernel2_helper(nj, nl, acc, beta, tmp, c,  j, i) do
-    acc = acc * beta
+    acc2 = acc * beta
 
     for k in range(0, nj, 1) do
-        acc =  acc + tmp[i * nj + k] * c[k * nl + j]
+        acc2 =  acc + tmp[i * nj + k] * c[k * nl + j]
     end
 
-    return acc
+    return acc2
 end
 
 def mm2_polyhok(ni, nj, nk, nl, alpha, beta, tmp, a, b, c, d) do    
@@ -93,8 +93,8 @@ block = {32, 8, 1}
 x = 0
 y = 1
 _z = 2
-grid1 = {Float.ceil(nj / elem(block, x)), Float.ceil(ni / elem(block, y)), 1}
-grid2 = {Float.ceil(nl / elem(block, x)), Float.ceil(ni / elem(block,y)), 1}
+grid1 = {ceil(nj / elem(block, x)), ceil(ni / elem(block, y)), 1}
+grid2 = {ceil(nl / elem(block, x)), ceil(ni / elem(block,y)), 1}
 
 prev = System.monotonic_time()
 
@@ -103,7 +103,7 @@ PolyHok.spawn(&MM2.mm2_kernel2/9, grid2, block, [ni, nj, nk, nl, alpha, beta, tm
 
 next = System.monotonic_time()
 
-IO.puts "PolyHok\t#{Polyhok.get_gnx(d_gpu)}\t#{System.convert_time_unit(next-prev,:native,:millisecond)} "
+IO.puts "PolyHok\t#{inspect(PolyHok.get_gnx(d_gpu))}\t#{System.convert_time_unit(next-prev,:native,:millisecond)} "
 
 end
 end
