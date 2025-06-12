@@ -105,6 +105,11 @@ next = System.monotonic_time()
 
 IO.puts "PolyHok\t#{inspect(PolyHok.get_gnx(d_gpu))}\t#{System.convert_time_unit(next-prev,:native,:millisecond)} "
 
+PolyHok.get_gnx(d_gpu)
+|> Nx.to_flat_list()
+|> Enum.map(&Float.to_string/1)
+|> then(&File.write!("polyhok_output.txt", &1))
+
 end
 end
 
