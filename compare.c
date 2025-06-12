@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 int main(int argc, char* argv[]){
 
@@ -12,7 +13,7 @@ int main(int argc, char* argv[]){
 
         while(fscanf(fp1, "%f", &cuda_number) == 1 && fscanf(fp2, "%f", &polyhok_number) == 1)
         {
-                if(abs(cuda_number - polyhok_number) > 0.0000005)
+                if(fabs(cuda_number - polyhok_number) > 0.0000005)
                 {
                         printf("Error! expected %f, got %f at index %d", cuda_number, polyhok_number, index);
                         exit(1);
