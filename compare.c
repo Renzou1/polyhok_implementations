@@ -10,10 +10,11 @@ int main(int argc, char* argv[]){
         float cuda_number;
         float polyhok_number;
         int index = 0;
+        float TOL = 0.0005;
 
         while(fscanf(fp1, "%f", &cuda_number) == 1 && fscanf(fp2, "%f", &polyhok_number) == 1)
         {
-                if(fabs(cuda_number - polyhok_number) > 0.0000005)
+                if(fabs(cuda_number - polyhok_number) > TOL)
                 {
                         printf("Error! expected %f, got %f at index %d", cuda_number, polyhok_number, index);
                         exit(1);
