@@ -40,8 +40,6 @@ def init_array(ni, nj, nk, nl, type) do
     d = Nx.tensor(d, type: type)
     tmp = Nx.broadcast(Nx.tensor(0, type: type), {ni, nj})
 
-    write_tensor_to_file(a, "polyhok_a.txt")
-    
     {alpha, beta, a, b, c, d, tmp}
 end
 
@@ -56,7 +54,7 @@ defk mm2_kernel(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
 end
 
 defd mm2_kernel_helper(nj, nk, alpha, a, b, j, i) do 
-    acc = 0
+    acc = 0.0
     for k in range(0, nk, 1) do
         acc = acc + alpha * a[i * nk + k] * b[k * nj + j]
     end
@@ -77,7 +75,7 @@ defd mm2_kernel2_helper(nj, nl, acc, beta, tmp, c,  j, i) do
     acc2 = acc * beta
 
     for k in range(0, nj, 1) do
-        acc2 =  acc + tmp[i * nj + k] * c[k * nl + j]
+        acc2 =  acc2 + tmp[i * nj + k] * c[k * nl + j]
     end
 
     return acc2
@@ -114,6 +112,7 @@ PolyHok.spawn(&MM2.mm2_kernel2/9, grid2, block, [ni, nj, nk, nl, alpha, beta, tm
 
 next = System.monotonic_time()
 
+#MM2.write_tensor_to_file(Polyhok.get_gnx(d_gpu), "polyhok_d_gpu.txt")
 IO.puts "PolyHok\t#{inspect(PolyHok.get_gnx(d_gpu))}\t#{System.convert_time_unit(next-prev,:native,:millisecond)} "
 
 PolyHok.get_gnx(d_gpu)
