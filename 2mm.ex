@@ -124,10 +124,12 @@ PolyHok.get_gnx(d_gpu)
 end
 end
 
-ni = 1024
-nj = 1024
-nk = 1024
-nl = 1024
+[size_string] = System.argv
+size = String.to_integer(size_string)
+ni = size
+nj = size
+nk = size
+nl = size
 type = {:f, 32}
 
 {alpha, beta, a, b, c, d, tmp} = MM2.init_array(ni, nj, nk, nl, type)
