@@ -112,7 +112,7 @@ PolyHok.spawn(&MM2.mm2_kernel2/9, grid2, block, [ni, nj, nk, nl, alpha, beta, tm
 
 next = System.monotonic_time()
 
-#MM2.write_tensor_to_file(Polyhok.get_gnx(d_gpu), "polyhok_d_gpu.txt")
+#MM2.write_tensor_to_file(PolyHok.get_gnx(d_gpu), "polyhok_d_gpu.txt")
 IO.puts "PolyHok\t#{inspect(PolyHok.get_gnx(d_gpu))}\t#{System.convert_time_unit(next-prev,:native,:millisecond)} "
 
 PolyHok.get_gnx(d_gpu)
