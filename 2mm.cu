@@ -260,8 +260,6 @@ int main(int argc, char** argv)
 	
 	/* Initialize array(s). */
   	init_array(ni, nj, nk, nl, &alpha, &beta, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B), POLYBENCH_ARRAY(C), POLYBENCH_ARRAY(D));
-	print_array(ni, nl, POLYBENCH_ARRAY(A));
-	exit(0);
 	GPU_argv_init();
 
 	mm2Cuda(ni, nj, nk, nl, alpha, beta, POLYBENCH_ARRAY(tmp), POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B), POLYBENCH_ARRAY(C), 
