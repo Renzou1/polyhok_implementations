@@ -1,3 +1,5 @@
+// checks if all of the numbers of two files are the same
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
