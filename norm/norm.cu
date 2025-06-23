@@ -31,6 +31,13 @@ int main(void)
     // initialize host array
     float x[4] = {1.0, 2.0, 3.0, 4.0};
 
+    // start timer
+    float time;
+    cudaEvent_t start, stop;   
+    cudaEventCreate(&start) ;
+    cudaEventCreate(&stop) ;
+    cudaEventRecord(start, 0) ;    
+    
     // transfer to device
     thrust::device_vector<float> d_x(x, x + 4);
 
@@ -41,6 +48,13 @@ int main(void)
 
     // compute norm
     float norm = std::sqrt( thrust::transform_reduce(d_x.begin(), d_x.end(), unary_op, init, binary_op) );
+
+    // end timer
+    cudaEventRecord(stop, 0) ;
+    cudaEventSynchronize(stop) ;
+    cudaEventElapsedTime(&time, start, stop) ;
+
+    printf("CUDA\t%3.1f\n", time);
 
     std::cout << "norm is " << norm << std::endl;
 
