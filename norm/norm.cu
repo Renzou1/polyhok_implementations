@@ -61,3 +61,55 @@ int main(void)
     return 0;
 }
 
+/*
+relevant mess:
+
+    //constructor used is probably this one
+    template<typename InputIterator>
+    device_vector(InputIterator first, InputIterator last)
+      :Parent(first,last) {}
+
+    //parent is vector_base
+
+    // so it goes to this:
+    template<typename InputIterator>
+    vector_base(InputIterator first, InputIterator last);
+
+    // which then goes to this
+    template<typename T, typename Alloc>
+    template<typename InputIterator>
+        void vector_base<T,Alloc>
+        ::range_init(InputIterator first,
+                    InputIterator last)
+    {
+    range_init(first, last,
+        typename thrust::iterator_traversal<InputIterator>::type());
+    } // end vector_base::range_init()
+
+
+    // then one of these two:
+
+    template<typename T, typename Alloc>
+    template<typename InputIterator>
+        void vector_base<T,Alloc>
+        ::range_init(InputIterator first,
+                    InputIterator last,
+                    thrust::incrementable_traversal_tag)
+    {
+    for(; first != last; ++first)
+        push_back(*first);
+    } // end vector_base::range_init()
+
+    template<typename T, typename Alloc>
+    template<typename ForwardIterator>
+        void vector_base<T,Alloc>
+        ::range_init(ForwardIterator first,
+                    ForwardIterator last,
+                    thrust::random_access_traversal_tag)
+    {
+    size_type new_size = thrust::distance(first, last);
+
+    allocate_and_copy(new_size, first, last, m_storage);
+    m_size    = new_size;
+    } // end vector_base::range_init()
+*/
