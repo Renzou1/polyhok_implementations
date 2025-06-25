@@ -61,6 +61,17 @@ int main(void)
     return 0;
 }
 
+
+    // finding out the type (random_access_traversal_tagE)
+    /*
+    float* ptr = nullptr;  // just need a pointer of the right type
+
+    using InputIterator = decltype(ptr);
+    using Traversal = typename thrust::iterator_traversal<InputIterator>::type;
+
+    std::cout << typeid(Traversal).name() << "\n";  // will be mangled
+    */
+
 /*
 relevant mess:
 
@@ -75,7 +86,37 @@ relevant mess:
     template<typename InputIterator>
     vector_base(InputIterator first, InputIterator last);
 
-    // which then goes to this
+    // then this
+
+    template<typename T, typename Alloc>
+    template<typename InputIterator>
+        vector_base<T,Alloc>
+        ::vector_base(InputIterator first,
+                        InputIterator last)
+            :m_storage(),
+            m_size(0)
+    {
+    // check the type of InputIterator: if it's an integral type,
+    // we need to interpret this call as (size_type, value_type)
+    typedef thrust::detail::is_integral<InputIterator> Integer;
+
+    init_dispatch(first, last, Integer());
+    } // end vector_base::vector_base()
+
+    // then this:
+
+    template<typename T, typename Alloc>
+    template<typename InputIterator>
+        void vector_base<T,Alloc>
+        ::init_dispatch(InputIterator first,
+                        InputIterator last,
+                        false_type)
+    {
+    range_init(first, last);
+    } // end vector_base::init_dispatch()
+
+    // then this:
+
     template<typename T, typename Alloc>
     template<typename InputIterator>
         void vector_base<T,Alloc>
@@ -86,19 +127,7 @@ relevant mess:
         typename thrust::iterator_traversal<InputIterator>::type());
     } // end vector_base::range_init()
 
-
-    // then one of these two:
-
-    template<typename T, typename Alloc>
-    template<typename InputIterator>
-        void vector_base<T,Alloc>
-        ::range_init(InputIterator first,
-                    InputIterator last,
-                    thrust::incrementable_traversal_tag)
-    {
-    for(; first != last; ++first)
-        push_back(*first);
-    } // end vector_base::range_init()
+    // then this:
 
     template<typename T, typename Alloc>
     template<typename ForwardIterator>
@@ -112,4 +141,5 @@ relevant mess:
     allocate_and_copy(new_size, first, last, m_storage);
     m_size    = new_size;
     } // end vector_base::range_init()
+
 */
