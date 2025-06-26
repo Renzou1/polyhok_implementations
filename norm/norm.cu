@@ -73,7 +73,7 @@ int main(void)
     */
 
 /*
-relevant mess:
+flow for device_vector:
 
     //constructor used is probably this one
     template<typename InputIterator>
@@ -143,3 +143,88 @@ relevant mess:
     } // end vector_base::range_init()
 
 */
+
+
+/*
+flow for transform reduce:
+template<typename InputIterator, 
+         typename UnaryFunction, 
+         typename OutputType,
+         typename BinaryFunction>
+  OutputType transform_reduce(InputIterator first,
+                              InputIterator last,
+                              UnaryFunction unary_op,
+                              OutputType init,
+                              BinaryFunction binary_op)
+{
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator>::type System;
+
+  System system;
+
+  return thrust::transform_reduce(select_system(system), first, last, unary_op, init, binary_op);
+} // end transform_reduce()
+
+// then this
+
+__thrust_exec_check_disable__
+template<typename DerivedPolicy,
+         typename InputIterator, 
+         typename UnaryFunction, 
+         typename OutputType,
+         typename BinaryFunction>
+__host__ __device__
+  OutputType transform_reduce(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                              InputIterator first,
+                              InputIterator last,
+                              UnaryFunction unary_op,
+                              OutputType init,
+                              BinaryFunction binary_op)
+{
+  using thrust::system::detail::generic::transform_reduce;
+  return transform_reduce(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, unary_op, init, binary_op);
+} // end transform_reduce()
+
+
+// then this
+
+template<typename DerivedPolicy,
+         typename InputIterator, 
+         typename UnaryFunction, 
+         typename OutputType,
+         typename BinaryFunction>
+__host__ __device__
+  OutputType transform_reduce(thrust::execution_policy<DerivedPolicy> &exec,
+                              InputIterator first,
+                              InputIterator last,
+                              UnaryFunction unary_op,
+                              OutputType init,
+                              BinaryFunction binary_op)
+{
+  thrust::transform_iterator<UnaryFunction, InputIterator, OutputType> xfrm_first(first, unary_op);
+  thrust::transform_iterator<UnaryFunction, InputIterator, OutputType> xfrm_last(last, unary_op);
+
+  return thrust::reduce(exec, xfrm_first, xfrm_last, init, binary_op);
+} // end transform_reduce()
+
+
+// then this
+__thrust_exec_check_disable__
+template<typename DerivedPolicy,
+         typename InputIterator,
+         typename T,
+         typename BinaryFunction>
+__host__ __device__
+  T reduce(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+           InputIterator first,
+           InputIterator last,
+           T init,
+           BinaryFunction binary_op)
+{
+  using thrust::system::detail::generic::reduce;
+  return reduce(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, init, binary_op);
+} // end reduce()
+ 
+*/
+
