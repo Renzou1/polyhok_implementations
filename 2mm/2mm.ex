@@ -48,18 +48,18 @@ defk mm2_kernel(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
 	i = blockIdx.y * blockDim.y + threadIdx.y
 
     if (i < ni && j < nj) do
-        tmp[i * nj + j] = mm2_kernel_helper(nj, nk, alpha, a, b, j, i)
+        tmp[i * nj + j] = 0.0
+        tmp[i * nj + j] = mm2_kernel_helper(nj, nk, alpha, a, b, j, i, tmp)
     end
 
 end
 
-defd mm2_kernel_helper(nj, nk, alpha, a, b, j, i) do 
-    acc = 0.0
+defd mm2_kernel_helper(nj, nk, alpha, a, b, j, i, tmp) do 
     for k in range(0, nk, 1) do
-        acc = acc + alpha * a[i * nk + k] * b[k * nj + j]
+        tmp[i * nj + j] = tmp[i * nj + j] + alpha * a[i * nk + k] * b[k * nj + j]
     end
 
-    return acc
+    return tmp[i * nj + j]
 end
 
 defk mm2_kernel2(ni, nj, nk, nl, alpha, beta, tmp, c, d) do
@@ -67,18 +67,17 @@ defk mm2_kernel2(ni, nj, nk, nl, alpha, beta, tmp, c, d) do
 	i = blockIdx.y * blockDim.y + threadIdx.y
 
 	if ((i < ni) && (j < nl)) do 
-        d[i * nl + j] = mm2_kernel2_helper(nj, nl, d[i * nl + j], beta, tmp, c,  j, i)
+        d[i * nl + j] = d[i * nl + j] * beta
+        d[i * nl + j] = mm2_kernel2_helper(nj, nl, beta, tmp, c,  j, i, d)
 	end
 end
 
-defd mm2_kernel2_helper(nj, nl, acc, beta, tmp, c,  j, i) do
-    acc2 = acc * beta
-
+defd mm2_kernel2_helper(nj, nl, beta, tmp, c,  j, i, d) do
     for k in range(0, nj, 1) do
-        acc2 =  acc2 + tmp[i * nj + k] * c[k * nl + j]
+        d[i * nl + j] = d[i * nl + j] + tmp[i * nj + k] * c[k * nl + j]
     end
 
-    return acc2
+    return d[i * nl + j]
 end
 
 def write_tensor_to_file(list, file_name) do
@@ -115,11 +114,6 @@ next = System.monotonic_time()
 #MM2.write_tensor_to_file(PolyHok.get_gnx(d_gpu), "polyhok_d_gpu.txt")
 IO.puts "PolyHok\t#{inspect(PolyHok.get_gnx(d_gpu))}\t#{System.convert_time_unit(next-prev,:native,:millisecond)} "
 
-PolyHok.get_gnx(d_gpu)
-|> Nx.to_flat_list()
-|> Enum.map(&Float.to_string/1)
-|> Enum.join(" ")
-|> then(&File.write!("polyhok_output.txt", &1))
 
 end
 end
