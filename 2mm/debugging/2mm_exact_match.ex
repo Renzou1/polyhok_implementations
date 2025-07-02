@@ -3,8 +3,8 @@ require PolyHok
 PolyHok.defmodule MM2 do
 
 def init_array(ni, nj, nk, nl, type) do
-    alpha = 32412
-    beta = 2123
+    alpha = 32412.0
+    beta = 2123.0
 
     a =
         for i <- 0..ni-1 do
@@ -47,44 +47,30 @@ defk mm2_kernel(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
 	j = blockIdx.x * blockDim.x + threadIdx.x
 	i = blockIdx.y * blockDim.y + threadIdx.y
 
-    if (i < ni && j < nj) do
-        tmp[i * nj + j] = 0.0
+    if (i < 1024 && j < 1024) do
+        tmp[i * 1024 + j] = 0.0
         #tmp[i * nj + j] = mm2_kernel_helper(nj, nk, alpha, a, b, j, i, tmp)
         for k in range(0, nk, 1) do
-            tmp[i * nj + j] = tmp[i * nj + j] + alpha * a[i * nk + k] * b[k * nj + j]
+            tmp[i * 1024 + j] = tmp[i * 1024 + j] + alpha * a[i * 1024 + k] * b[k * 1024 + j]
         end
     end
 
-end
-
-defd mm2_kernel_helper(nj, nk, alpha, a, b, j, i, tmp) do
-    for k in range(0, nk, 1) do
-        tmp[i * nj + j] = tmp[i * nj + j] + alpha * a[i * nk + k] * b[k * nj + j]
-    end
-
-    return tmp[i * nj + j]
 end
 
 defk mm2_kernel2(ni, nj, nk, nl, alpha, beta, tmp, c, d) do
     j = blockIdx.x * blockDim.x + threadIdx.x
 	i = blockIdx.y * blockDim.y + threadIdx.y
 
-	if ((i < ni) && (j < nl)) do
-        d[i * nl + j] = d[i * nl + j] * beta
+	if ((i < 1024) && (j < 1024)) do
+        d[i * 1024 + j] = d[i * 1024 + j] * beta
         #d[i * nl + j] = mm2_kernel2_helper(nj, nl, beta, tmp, c,  j, i, d)
-        for k in range(0, nj, 1) do
-            d[i * nl + j] = d[i * nl + j] + tmp[i * nj + k] * c[k * nl + j]
+        for k in range(0, 1024, 1) do
+            d[i * 1024 + j] = d[i * 1024 + j] + tmp[i * 1024 + k] * c[k * 1024 + j]
         end
 	end
 end
 
-defd mm2_kernel2_helper(nj, nl, beta, tmp, c,  j, i, d) do
-    for k in range(0, nj, 1) do
-        d[i * nl + j] = d[i * nl + j] + tmp[i * nj + k] * c[k * nl + j]
-    end
 
-    return d[i * nl + j]
-end
 
 def write_tensor_to_file(list, file_name) do
 list

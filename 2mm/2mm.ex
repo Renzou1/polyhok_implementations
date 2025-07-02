@@ -3,8 +3,8 @@ require PolyHok
 PolyHok.defmodule MM2 do
 
 def init_array(ni, nj, nk, nl, type) do
-    alpha = 32412
-    beta = 2123
+    alpha = 32412.0
+    beta = 2123.0
 
     a =
         for i <- 0..ni-1 do
