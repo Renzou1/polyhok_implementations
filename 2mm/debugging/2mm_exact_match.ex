@@ -49,7 +49,10 @@ defk mm2_kernel(ni, nj, nk, nl, alpha, beta, tmp, a, b) do
 
     if (i < ni && j < nj) do
         tmp[i * nj + j] = 0.0
-        tmp[i * nj + j] = mm2_kernel_helper(nj, nk, alpha, a, b, j, i, tmp)
+        #tmp[i * nj + j] = mm2_kernel_helper(nj, nk, alpha, a, b, j, i, tmp)
+        for k in range(0, nk, 1) do
+            tmp[i * nj + j] = tmp[i * nj + j] + alpha * a[i * nk + k] * b[k * nj + j]
+        end
     end
 
 end
@@ -68,7 +71,10 @@ defk mm2_kernel2(ni, nj, nk, nl, alpha, beta, tmp, c, d) do
 
 	if ((i < ni) && (j < nl)) do
         d[i * nl + j] = d[i * nl + j] * beta
-        d[i * nl + j] = mm2_kernel2_helper(nj, nl, beta, tmp, c,  j, i, d)
+        #d[i * nl + j] = mm2_kernel2_helper(nj, nl, beta, tmp, c,  j, i, d)
+        for k in range(0, nj, 1) do
+            d[i * nl + j] = d[i * nl + j] + tmp[i * nj + k] * c[k * nl + j]
+        end
 	end
 end
 
