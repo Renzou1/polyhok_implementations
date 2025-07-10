@@ -265,9 +265,10 @@ int main(int argc, char** argv)
 	mm2Cuda(ni, nj, nk, nl, alpha, beta, POLYBENCH_ARRAY(tmp), POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B), POLYBENCH_ARRAY(C), 
 		POLYBENCH_ARRAY(D), POLYBENCH_ARRAY(D_outputFromGpu));
 
+	/*
 	#ifdef RUN_ON_CPU
 
-		/* Start timer. */
+		// Start timer. 
 	  	polybench_start_instruments;
 
 		mm2_cpu(ni, nj, nk, nl, alpha, beta, POLYBENCH_ARRAY(tmp), POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B), POLYBENCH_ARRAY(C), POLYBENCH_ARRAY(D));
@@ -282,7 +283,8 @@ int main(int argc, char** argv)
 
 		print_array(ni, nl, POLYBENCH_ARRAY(D_outputFromGpu));
 
-	#endif //RUN_ON_CPU
+	#endif //RUN_ON_CPU 
+	*/
 
 	POLYBENCH_FREE_ARRAY(tmp);
 	POLYBENCH_FREE_ARRAY(A);
