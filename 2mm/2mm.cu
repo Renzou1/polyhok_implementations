@@ -19,8 +19,8 @@
 #define POLYBENCH_TIME 1
 
 #include "2mm.cuh"
-#include "common/polybench.h"
-#include "common/polybenchUtilFuncts.h"
+#include "../polybench/common/polybench.h"
+#include "../polybench/common/polybenchUtilFuncts.h"
 
 //define the error threshold for the results "not matching"
 #define PERCENT_DIFF_ERROR_THRESHOLD 0.05
@@ -296,4 +296,4 @@ int main(int argc, char** argv)
   	return 0;
 }
 
-#include "common/polybench.c"
+#include "../polybench/common/polybench.c"
