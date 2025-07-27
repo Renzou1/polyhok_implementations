@@ -16,6 +16,15 @@ def init_arrays(m, n) do
 
   #write_tensor_to_file(data, "data.txt")
 
+  data
+end
+
+defk mean_kernel(m, n, mean, data, float_n, f) do
+	j = blockIdx.x * blockDim.x _ threadIdx.x
+
+    if (j < m) do
+      mean[j] = f(mean[j])
+    end
 
 end
 
@@ -30,4 +39,6 @@ end
 
 end
 
-CORR.init_arrays(100, 100)
+float_n = 3214212.01
+eps = 0.005
+data = CORR.init_arrays(100, 100)
