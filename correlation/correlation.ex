@@ -57,10 +57,9 @@ defd std_kernel_helper(std_j, data, mean, float_n, eps) do
 
 		std_j = std_j / float_n
 		std_j = math.sqrt(std_j)
-		if(std_j <= eps)
-		{
+		if(std_j <= eps) do
 			std_j = 1.0
-		}
+    end
 
     return std_j
 
@@ -106,6 +105,45 @@ defk corr_kernel(m, n, symmat, data) do
   end
 end
 
+def correlation_polyhok(m, n, data, mean, stddev, symmat, symmat_gpu_output, float_n, eps) do
+  data_gpu = PolyHok.new_gnx(data)
+  symmat_gpu = PolyHok.new_gnx(symmat)
+  stddev_gpu = PolyHok.new_gnx(stddev)
+  mean_gpu = PolyHok.new_gnx(mean)
+
+  block1 = {256, 1, 1}
+  grid1 = { ceil(m / 256), 1, 1}
+
+  block2 = {256, 1, 1}
+  grid2 = { ceil(m / 256), 1, 1}
+
+  block3 = {32, 8, 1}
+  grid3 = { ceil(m / 32), n / 8, 1}
+
+  block4 = {256, 1, 1}
+  grid4 = { ceil(m / 256), 1, 1}
+
+  #defk mean_kernel(m, n, mean, data, float_n, f) do, defd mean_kernel_helper(mean_j, data, float_n, j) do
+  #defk std_kernel(m, n, mean, std, data, float_n, eps, f) do, defd std_kernel_helper(std_j, data, mean, float_n, eps) do
+  #defk reduce_kernel(m, n, mean, std, data, float_n, f) do, defd reduce_kernel_helper(data_im_j, mean_j, std_j, float_n) do
+  #defk corr_kernel(m, n, symmat, data) do
+
+  prev = System.monotonic_time()
+
+  PolyHok.spawn(&CORR.mean_kernel/5, grid1, block1, [m, n, mean_gpu, data_gpu, float_n, &CORR.mean_kernel_helper/4])
+  PolyHok.spawn(&CORR.std_kernel/8, grid2, block2, [m, n, mean_gpu, stddev_gpu, data_gpu, float_n, eps, &CORR.std_kernel_helper/5])
+  PolyHok.spawn(&CORR.reduce_kernel/7, grid3, block3, [m, n, mean_gpu, stddev_gpu, data_gpu, float_n, &CORR.reduce_kernel_helper/4])
+  PolyHok.spawn(&CORR.corr_kernel/4, grid3, block3, [m, n, symmat_gpu, data_gpu])
+
+  next = System.monotonic_time()
+
+  symmat_gpu_output = PolyHok.get_gnx(symmat_gpu)
+  symmat_gpu_output[(m-1)*m + (m-1)] = 1.0 # i dont know why this is done
+
+  #CORR.write_tensor_to_file(symmat_gpu_output, "polyhok_output.txt")
+  IO.puts "PolyHok\t#{inspect(symmat_gpu_output)}\t#{System.convert_time_unit(next-prev,:native,:millisecond)} "
+end
+
 def write_tensor_to_file(list, file_name) do
 list
 |> Nx.to_flat_list()
@@ -119,4 +157,10 @@ end
 
 float_n = 3214212.01
 eps = 0.005
-data = CORR.init_arrays(100, 100)
+data = CORR.init_arrays(10, 10)
+
+data = Nx.broadcast(Nx.tensor(0, type: type), {m, n})
+mean = Nx.broadcast(Nx.tensor(0, type: type), {m, n})
+stddev = Nx.broadcast(Nx.tensor(0, type: type), {m, n})
+symmat = Nx.broadcast(Nx.tensor(0, type: type), {m, n})
+symmat_gpu_output = Nx.broadcast(Nx.tensor(0, type: type), {m, n})
