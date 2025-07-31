@@ -126,7 +126,7 @@ def correlation_polyhok(m, n, data, mean, stddev, symmat, float_n, eps) do
   PolyHok.spawn(&CORR.mean_kernel/6, grid1, block1, [m, n, mean_gpu, data_gpu, float_n, &CORR.mean_kernel_helper/5])
   PolyHok.spawn(&CORR.std_kernel/8, grid2, block2, [m, n, mean_gpu, stddev_gpu, data_gpu, float_n, eps, &CORR.std_kernel_helper/7])
   PolyHok.spawn(&CORR.reduce_kernel/7, grid3, block3, [m, n, mean_gpu, stddev_gpu, data_gpu, float_n, &CORR.reduce_kernel_helper/4])
-  PolyHok.spawn(&CORR.corr_kernel/4, grid4, block4, [m, n, symmat_gpu, data_gpu])
+  PolyHok.spawn(&CORR.corr_kernel/4, grid4, block4, [m, n, symmat_gpu, data_gpu]) #most computation happens here (around 2/3)
 
   next = System.monotonic_time()
 
