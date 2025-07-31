@@ -79,7 +79,7 @@ defd reduce_kernel_helper(data_im_j, mean_j, std_j, float_n) do
 end
 
 
-defk corr_kernel(m, n, symmat, data) do
+defk corr_kernel(m, n, symmat, data, f) do
   j1 = blockIdx.x * blockDim.x + threadIdx.x
 
   if (j1 < m - 1) do
@@ -88,19 +88,21 @@ defk corr_kernel(m, n, symmat, data) do
 
     for j2 in range(j1 + 1, m, 1) do
 
-      symmat[j1*m + j2] = 0.0
-
-      for i in range(0, n, 1) do
-
-				symmat[j1*m + j2] = symmat[j1*m + j2] + data[i*m + j1] * data[i*m + j2]
-
-      end
-
+			symmat[j1*m + j2] = f(m, n, data, j1, j2)
 			symmat[j2*m + j1] = symmat[j1*m + j2]
-
     end
 
   end
+end
+
+defd corr_kernel_helper(m, n, data, j1, j2) do
+  acc = 0.0
+
+  for i in range(0, n, 1) do
+    acc = acc + data[i * m + j1] * data[i * m + j2]
+  end
+
+  return acc
 end
 
 def correlation_polyhok(m, n, data, mean, stddev, symmat, float_n, eps) do
@@ -126,7 +128,7 @@ def correlation_polyhok(m, n, data, mean, stddev, symmat, float_n, eps) do
   PolyHok.spawn(&CORR.mean_kernel/6, grid1, block1, [m, n, mean_gpu, data_gpu, float_n, &CORR.mean_kernel_helper/5])
   PolyHok.spawn(&CORR.std_kernel/8, grid2, block2, [m, n, mean_gpu, stddev_gpu, data_gpu, float_n, eps, &CORR.std_kernel_helper/7])
   PolyHok.spawn(&CORR.reduce_kernel/7, grid3, block3, [m, n, mean_gpu, stddev_gpu, data_gpu, float_n, &CORR.reduce_kernel_helper/4])
-  PolyHok.spawn(&CORR.corr_kernel/4, grid4, block4, [m, n, symmat_gpu, data_gpu]) #most computation happens here (around 2/3)
+  PolyHok.spawn(&CORR.corr_kernel/5, grid4, block4, [m, n, symmat_gpu, data_gpu, &CORR.corr_kernel_helper/5]) #most computation happens here (around 2/3)
 
   next = System.monotonic_time()
 
