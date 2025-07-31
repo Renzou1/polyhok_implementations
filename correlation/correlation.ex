@@ -140,6 +140,7 @@ def correlation_polyhok(m, n, data, mean, stddev, symmat, float_n, eps) do
 end
 
 def write_tensor_to_file(list, file_name) do
+IO.inspect(Nx.shape(list), label: "Shape of tensor")
 list
 |> Nx.to_flat_list()
 |> Enum.map(&Float.to_string/1)

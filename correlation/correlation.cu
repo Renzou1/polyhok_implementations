@@ -31,7 +31,7 @@
 #define FLOAT_N 3214212.01f
 #define EPS 0.005f
 
-#define RUN_ON_CPU
+//#define RUN_ON_CPU
 
 
 void init_arrays(int m, int n, DATA_TYPE POLYBENCH_2D(data, M, N, m, n))
@@ -138,7 +138,7 @@ void GPU_argv_init()
 {
 	cudaDeviceProp deviceProp;
 	cudaGetDeviceProperties(&deviceProp, GPU_DEVICE);
-	printf("setting device %d with name %s\n",GPU_DEVICE,deviceProp.name);
+	//printf("setting device %d with name %s\n",GPU_DEVICE,deviceProp.name);
 	cudaSetDevice( GPU_DEVICE );
 }
 
@@ -252,7 +252,7 @@ void correlationCuda(int m, int n, DATA_TYPE POLYBENCH_2D(data, M, N, m, n), DAT
 	dim3 grid4((size_t)(ceil((float)(M)) / ((float)DIM_THREAD_BLOCK_KERNEL_4_X)), 1);
 
 	/* Start timer. */
-  	polybench_start_instruments;
+  	//polybench_start_instruments;
 
 	mean_kernel<<< grid1, block1 >>>(m, n, mean_gpu,data_gpu);
 	cudaThreadSynchronize();
@@ -264,9 +264,9 @@ void correlationCuda(int m, int n, DATA_TYPE POLYBENCH_2D(data, M, N, m, n), DAT
 	cudaThreadSynchronize();
 
 	/* Stop and print timer. */
-	printf("GPU Time in seconds:\n");
-  	polybench_stop_instruments;
- 	polybench_print_instruments;
+	//printf("GPU Time in seconds:\n");
+  	//polybench_stop_instruments;
+ 	//polybench_print_instruments;
 
 	DATA_TYPE valueAtSymmatIndexMTimesMPlus1PlusMPoint = 1.0;
 	cudaMemcpy(&(symmat_gpu[(M-1)*M + (M-1)]), &valueAtSymmatIndexMTimesMPlus1PlusMPoint, sizeof(DATA_TYPE), cudaMemcpyHostToDevice);
