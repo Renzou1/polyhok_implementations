@@ -12,7 +12,7 @@ def init_arrays(m, n) do
   j_mat = Nx.reshape(j, {1, n})
 
   # Broadcasted multiply then divide
-  data = Nx.divide(Nx.multiply(i_mat , j_mat), m)
+  data = Nx.divide(Nx.multiply(i_mat , j_mat), Nx.tensor(m, type: {:f, 32}))
 
   #write_tensor_to_file(data, "data.txt")
 
@@ -51,12 +51,12 @@ end
 defd std_kernel_helper(m, n, data, mean, float_n, eps, j) do
 		std_j = 0.0
 
-    for i in range(0, 10, 1) do
+    for i in range(0, n, 1) do
 			std_j = std_j + (data[i*m + j] - mean[j]) * (data[i*m + j] - mean[j])
     end
 
 		std_j = std_j / float_n
-		#std_j = math.sqrt(std_j)
+		std_j = sqrt(std_j)
 		if(std_j <= eps) do
 			std_j = 1.0
     end
@@ -75,9 +75,7 @@ defk reduce_kernel(m, n, mean, std, data, float_n, f) do
 end
 
 defd reduce_kernel_helper(data_im_j, mean_j, std_j, float_n) do
-  #data_im_j = (data_im_j - mean_j)
-  #data_im_j = data_im_j / (Nx.sqrt(float_n) * std_j)
-  return (data_im_j - mean_j)
+  return (data_im_j - mean_j) / (sqrt(float_n) * std_j)
 end
 
 
@@ -133,9 +131,9 @@ def correlation_polyhok(m, n, data, mean, stddev, symmat, float_n, eps) do
   next = System.monotonic_time()
 
   symmat_gpu_output = PolyHok.get_gnx(symmat_gpu)
-  Nx.indexed_put(symmat_gpu_output, Nx.tensor([[m-1, m-1]]), Nx.tensor([1.0])) # i dont know why this is done
+  symmat_gpu_output = Nx.indexed_put(symmat_gpu_output, Nx.tensor([[m-1, m-1]]), Nx.tensor([1.0])) # i dont know why this is done
 
-  #CORR.write_tensor_to_file(symmat_gpu_output, "polyhok_output.txt")
+  CORR.write_tensor_to_file(symmat_gpu_output, "polyhok_output.txt")
   IO.puts "PolyHok\t#{inspect(symmat_gpu_output)}\t#{System.convert_time_unit(next-prev,:native,:millisecond)} "
 end
 
@@ -153,12 +151,14 @@ end
 float_n = 3214212.01
 eps = 0.005
 type = {:f, 32}
-m = 10
-n = 10
+[size_string] = System.argv
+size = String.to_integer(size_string)
+m = size
+n = size
 
 data = CORR.init_arrays(m, n)
-mean = Nx.broadcast(Nx.tensor(0, type: type), {m, n})
-stddev = Nx.broadcast(Nx.tensor(0, type: type), {m, n})
+mean = Nx.broadcast(Nx.tensor(0, type: type), {m})
+stddev = Nx.broadcast(Nx.tensor(0, type: type), {m})
 symmat = Nx.broadcast(Nx.tensor(0, type: type), {m, n})
 
 CORR.correlation_polyhok(m, n, data, mean, stddev, symmat, float_n, eps)
