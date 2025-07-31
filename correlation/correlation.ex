@@ -20,10 +20,10 @@ def init_arrays(m, n) do
 end
 
 defk mean_kernel(m, n, mean, data, float_n, f) do
-	j = blockIdx.x * blockDim.x _ threadIdx.x
+	j = blockIdx.x * blockDim.x + threadIdx.x
 
     if (j < m) do
-      mean[j] = f(n, data, float_n, j)
+      mean[j] = f(m, n, data, float_n, j)
     end
 
 end
@@ -44,19 +44,19 @@ defk std_kernel(m, n, mean, std, data, float_n, eps, f) do
   j = blockIdx.x * blockDim.x + threadIdx.x
 
   if (j < m) do
-    std[j] = f(n, data, mean, float_n, eps)
+    std[j] = f(m, n, data, mean, float_n, eps, j)
   end
 end
 
-defd std_kernel_helper(m, n, data, mean, float_n, eps) do
+defd std_kernel_helper(m, n, data, mean, float_n, eps, j) do
 		std_j = 0.0
 
-    for i in range(0, n, 1) do
+    for i in range(0, 10, 1) do
 			std_j = std_j + (data[i*m + j] - mean[j]) * (data[i*m + j] - mean[j])
     end
 
 		std_j = std_j / float_n
-		std_j = math.sqrt(std_j)
+		#std_j = math.sqrt(std_j)
 		if(std_j <= eps) do
 			std_j = 1.0
     end
@@ -75,9 +75,9 @@ defk reduce_kernel(m, n, mean, std, data, float_n, f) do
 end
 
 defd reduce_kernel_helper(data_im_j, mean_j, std_j, float_n) do
-  data_im_j = data_im_j - mean_j
+  #data_im_j = (data_im_j - mean_j)
   #data_im_j = data_im_j / (Nx.sqrt(float_n) * std_j)
-  return data_im_j
+  return (data_im_j - mean_j)
 end
 
 
@@ -125,8 +125,8 @@ def correlation_polyhok(m, n, data, mean, stddev, symmat, float_n, eps) do
 
   prev = System.monotonic_time()
 
-  PolyHok.spawn(&CORR.mean_kernel/5, grid1, block1, [m, n, mean_gpu, data_gpu, float_n, &CORR.mean_kernel_helper/5])
-  PolyHok.spawn(&CORR.std_kernel/8, grid2, block2, [m, n, mean_gpu, stddev_gpu, data_gpu, float_n, eps, &CORR.std_kernel_helper/6])
+  PolyHok.spawn(&CORR.mean_kernel/6, grid1, block1, [m, n, mean_gpu, data_gpu, float_n, &CORR.mean_kernel_helper/5])
+  PolyHok.spawn(&CORR.std_kernel/8, grid2, block2, [m, n, mean_gpu, stddev_gpu, data_gpu, float_n, eps, &CORR.std_kernel_helper/7])
   PolyHok.spawn(&CORR.reduce_kernel/7, grid3, block3, [m, n, mean_gpu, stddev_gpu, data_gpu, float_n, &CORR.reduce_kernel_helper/4])
   PolyHok.spawn(&CORR.corr_kernel/4, grid4, block4, [m, n, symmat_gpu, data_gpu])
 
