@@ -319,16 +319,16 @@ int main()
 	#ifdef RUN_ON_CPU
 
 		/* Start timer. */
-	  	polybench_start_instruments;
+	  	//polybench_start_instruments;
 
-		correlation(m, n, POLYBENCH_ARRAY(data), POLYBENCH_ARRAY(mean), POLYBENCH_ARRAY(stddev), POLYBENCH_ARRAY(symmat));
+		//correlation(m, n, POLYBENCH_ARRAY(data), POLYBENCH_ARRAY(mean), POLYBENCH_ARRAY(stddev), POLYBENCH_ARRAY(symmat));
 
 		/* Stop and print timer. */
-		printf("CPU Time in seconds:\n");
-	  	polybench_stop_instruments;
-	 	polybench_print_instruments;
+		//printf("CPU Time in seconds:\n");
+	  	//polybench_stop_instruments;
+	 	//polybench_print_instruments;
     
-		compareResults(m, n, POLYBENCH_ARRAY(symmat), POLYBENCH_ARRAY(symmat_outputFromGpu));
+		//compareResults(m, n, POLYBENCH_ARRAY(symmat), POLYBENCH_ARRAY(symmat_outputFromGpu));
 
 	#else //print output to stderr so no dead code elimination
 

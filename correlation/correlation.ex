@@ -133,7 +133,7 @@ def correlation_polyhok(m, n, data, mean, stddev, symmat, float_n, eps) do
   symmat_gpu_output = PolyHok.get_gnx(symmat_gpu)
   symmat_gpu_output = Nx.indexed_put(symmat_gpu_output, Nx.tensor([[m-1, m-1]]), Nx.tensor([1.0])) # i dont know why this is done
 
-  CORR.write_tensor_to_file(symmat_gpu_output, "polyhok_output.txt")
+  #CORR.write_tensor_to_file(symmat_gpu_output, "polyhok_output.txt")
   IO.puts "PolyHok\t#{inspect(symmat_gpu_output)}\t#{System.convert_time_unit(next-prev,:native,:millisecond)} "
 end
 
