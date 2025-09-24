@@ -18,8 +18,8 @@
 #define POLYBENCH_TIME 1
 
 #include "correlation.cuh"
-#include "../polybench/common/polybench.h"
-#include "../polybench/common/polybenchUtilFuncts.h"
+#include "common/polybench.h"
+#include "common/polybenchUtilFuncts.h"
 
 //define the error threshold for the results "not matching"
 #define PERCENT_DIFF_ERROR_THRESHOLD 1.05
@@ -346,4 +346,4 @@ int main()
   	return 0;
 }
 
-#include "../polybench/common/polybench.c"
+#include "common/polybench.c"
